@@ -1,7 +1,6 @@
 package app.udala.pos.controller;
 
 import java.net.URI;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.transaction.Transactional;
@@ -17,10 +16,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import app.udala.pos.controller.dto.BasketDto;
 import app.udala.pos.controller.dto.CheckoutDto;
 import app.udala.pos.model.Basket;
+import app.udala.pos.model.BasketProduct;
 import app.udala.pos.model.Product;
 import app.udala.pos.model.User;
+import app.udala.pos.repository.BasketProductRepository;
 import app.udala.pos.repository.BasketRepository;
 import app.udala.pos.repository.ProductRepository;
 import app.udala.pos.repository.UserRepository;
@@ -32,12 +34,15 @@ public class BasketController {
 
 	@Autowired
 	private BasketRepository repository;
-	
+
 	@Autowired
 	private ProductRepository productRepository;
-	
+
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private BasketProductRepository basketProductRepository;
 
 	@PostMapping
 	@Transactional
@@ -58,20 +63,21 @@ public class BasketController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<Basket> getBasket(@PathVariable Long id) {
+	public ResponseEntity<BasketDto> getBasket(@PathVariable Long id) {
 		Optional<Basket> optionalBasket = repository.findById(id);
 
 		if (optionalBasket.isEmpty()) {
 			log.error("Basket not found! Basket id: {}", id);
 			return ResponseEntity.notFound().build();
 		}
+		BasketDto basketDto = new BasketDto(optionalBasket.get());
 
-		return ResponseEntity.ok(optionalBasket.get());
+		return ResponseEntity.ok(basketDto);
 	}
 
-	@PostMapping("/{basketId}/{productId}")
 	@Transactional
-	public ResponseEntity<Basket> addItems(@PathVariable Long basketId, @PathVariable String productId) {
+	@PostMapping("/{basketId}/{productId}")
+	public ResponseEntity<BasketDto> addItems(@PathVariable Long basketId, @PathVariable String productId) {
 		log.info("Checking if basket exists");
 		Optional<Basket> optBasket = repository.findById(basketId);
 		if (!optBasket.isPresent()) {
@@ -88,18 +94,22 @@ public class BasketController {
 		
 		Product product = optProduct.get();
 		Basket basket = optBasket.get();
-
-		log.info("Adding item '{}' to basket {}.", product.getName(), basketId);
-		Map<String, Product> products = basket.getProducts();
-		Product checkProduct = products.get(productId);
-		// adding one product, or increasing +1
-		if (checkProduct != null) {
-			checkProduct.addOne();
+		
+		
+		log.info("Check if item '{}' was already added (Id: {})", product.getName(), product.getId());
+		Optional<BasketProduct> productFound = basket.getProducts().stream().filter(basketProduct -> {
+			return basketProduct.getProduct().getId().equals(productId);
+		}).findFirst();
+		
+		if (productFound.isPresent()) {
+			productFound.get().addOne();
 		} else {
-			products.put(productId, product);
+			BasketProduct basketProduct = new BasketProduct(product, basket);
+			basketProductRepository.save(basketProduct);
+			basket.addProduct(basketProduct);
 		}
-
-		return ResponseEntity.ok(basket);
+		
+		return ResponseEntity.ok(new BasketDto(basket));
 	}
 
 	@PostMapping("/{basketId}/checkout")

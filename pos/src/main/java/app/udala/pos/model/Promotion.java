@@ -12,6 +12,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import app.udala.pos.controller.dto.ProductDto;
+
 @Entity
 @JsonInclude(Include.NON_NULL)
 public class Promotion {
@@ -91,9 +93,8 @@ public class Promotion {
 				this.id, this.type, this.requiredQty, this.freeQty, this.amount, this.price);
 	}
 
-	public int calculatePromo(Product product) {
+	public int calculatePromo(ProductDto product, int qty) {
 		int total = 0;
-		int qty = product.getQty();
 
 		switch (type) {
 		case QTY_BASED_PRICE_OVERRIDE:

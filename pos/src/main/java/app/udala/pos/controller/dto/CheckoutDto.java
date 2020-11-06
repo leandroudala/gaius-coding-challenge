@@ -1,59 +1,38 @@
 package app.udala.pos.controller.dto;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import app.udala.pos.model.Basket;
-import app.udala.pos.model.Product;
 import app.udala.pos.model.User;
 
 public class CheckoutDto {
 	private Long id;
 	private User client;
-	private Map<String, Product> products;
+	private List<ProductDto> products;
 	private int rawTotal;
 	private int totalPromo;
 	private int totalPayable;
-
-	public CheckoutDto() {
-		products = new HashMap<>();
-		rawTotal = 0;
-		totalPromo = 0;
-		totalPayable = 0;
-	}
-
+	
 	public CheckoutDto(Basket basket) {
-		super();
 		this.id = basket.getId();
-		this.products = basket.getProducts();
 		this.client = basket.getUser();
+		this.products = basket.getProducts().stream().map(ProductDto::new).collect(Collectors.toList());
 	}
-
+	
 	public Long getId() {
 		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 
 	public User getClient() {
 		return client;
 	}
 
-	public void setClient(User client) {
-		this.client = client;
-	}
-
-	public Map<String, Product> getProducts() {
+	public List<ProductDto> getProducts() {
 		return products;
 	}
 
-	public void setProducts(Map<String, Product> products) {
-		this.products = products;
-	}
-
-	public double getRawTotal() {
+	public int getRawTotal() {
 		return rawTotal;
 	}
 
@@ -61,27 +40,18 @@ public class CheckoutDto {
 		return totalPromo;
 	}
 
-	public void setTotalPromo(int totalPromo) {
-		this.totalPromo = totalPromo;
-	}
-
 	public int getTotalPayable() {
 		return totalPayable;
 	}
 
-	public void setTotalPayable(int totalPayable) {
-		this.totalPayable = totalPayable;
-	}
-
-	public void setRawTotal(int rawTotal) {
-		this.rawTotal = rawTotal;
-	}
-
 	public void doCheckout() {
-		products.forEach((productId, product) -> {
-			this.rawTotal += product.getPrice() * product.getQty();
+		products.stream().forEach(product -> {
+			int qty = product.getQtd();
+			this.rawTotal += product.getPrice() * qty;
+
+			// calculating promotion
 			product.getPromotions().stream().forEach(promo -> {
-				this.totalPromo = promo.calculatePromo(product);
+				this.totalPromo = promo.calculatePromo(product, qty);
 				this.totalPayable = this.rawTotal - this.totalPromo;
 			});
 		});

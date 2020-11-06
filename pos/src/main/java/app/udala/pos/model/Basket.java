@@ -1,6 +1,7 @@
 package app.udala.pos.model;
 
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,8 +10,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 @Entity
 public class Basket {
@@ -18,15 +19,15 @@ public class Basket {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToMany
-	Map<String, Product> products;
-
 	@ManyToOne
 	private User user;
-	
+
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private BasketStatus status = BasketStatus.PENDING;
+
+	@OneToMany(mappedBy = "basket")
+	private List<BasketProduct> products = new ArrayList<>();
 
 	public Long getId() {
 		return id;
@@ -36,20 +37,32 @@ public class Basket {
 		this.id = id;
 	}
 
-	public Map<String, Product> getProducts() {
-		return products;
-	}
-
-	public void setProducts(Map<String, Product> products) {
-		this.products = products;
-	}
-
 	public User getUser() {
 		return user;
 	}
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+	public BasketStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(BasketStatus status) {
+		this.status = status;
+	}
+
+	public List<BasketProduct> getProducts() {
+		return products;
+	}
+
+	public void setProducts(List<BasketProduct> products) {
+		this.products = products;
+	}
+
+	public void addProduct(BasketProduct product) {
+		this.products.add(product);
 	}
 
 }

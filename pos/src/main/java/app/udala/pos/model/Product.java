@@ -28,8 +28,6 @@ public class Product {
 	@JsonProperty("price")
 	private int price;
 
-	private int qty = 1;
-
 	@OneToMany
 	@JsonProperty("promotions")
 	private List<Promotion> promotions;
@@ -69,21 +67,4 @@ public class Product {
 	public void setPromotions(List<Promotion> promotions) {
 		this.promotions = promotions;
 	}
-
-	public int getQty() {
-		return qty;
-	}
-
-	public void setQty(int qty) {
-		this.qty = qty;
-	}
-
-	public void addOne() {
-		this.qty += 1;
-	}
-
-	public void addQty(int qty) {
-		this.qty += qty;
-	}
-
 }
