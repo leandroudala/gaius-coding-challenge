@@ -120,9 +120,10 @@ public class Promotion {
 
 	private int buyXGetYFree(ProductDto product, int qty) {
 		if (qty >= this.requiredQty + this.freeQty) {
-			int groups = qty / (this.requiredQty + this.freeQty);
-			int needPay = groups * requiredQty;
-			return needPay * product.getPrice();
+			int groups = Math.floorDiv(qty, this.requiredQty + this.freeQty);
+			int needPay = groups * this.requiredQty;
+			int payFullValue = qty - ((requiredQty + freeQty) * groups);
+			return needPay * product.getPrice() + payFullValue * product.getPrice();
 		}
 		
 		return 0;

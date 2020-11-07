@@ -40,7 +40,7 @@ public class BasketController {
 
 	@Autowired
 	private UserRepository userRepository;
-	
+
 	@Autowired
 	private BasketProductRepository basketProductRepository;
 
@@ -91,16 +91,14 @@ public class BasketController {
 			log.error("Product not registered! Id: '{}'", productId);
 			return ResponseEntity.notFound().build();
 		}
-		
+
 		Product product = optProduct.get();
 		Basket basket = optBasket.get();
-		
-		
+
 		log.info("Check if item '{}' was already added (Id: {})", product.getName(), product.getId());
-		Optional<BasketProduct> productFound = basket.getProducts().stream().filter(basketProduct -> {
-			return basketProduct.getProduct().getId().equals(productId);
-		}).findFirst();
-		
+		Optional<BasketProduct> productFound = basket.getProducts().stream()
+				.filter(basketProduct -> basketProduct.getProduct().getId().equals(productId)).findFirst();
+
 		if (productFound.isPresent()) {
 			productFound.get().addOne();
 		} else {
@@ -108,7 +106,7 @@ public class BasketController {
 			basketProductRepository.save(basketProduct);
 			basket.addProduct(basketProduct);
 		}
-		
+
 		return ResponseEntity.ok(new BasketDto(basket));
 	}
 
