@@ -234,4 +234,19 @@ class PosApplicationTests {
 		assertEquals(99, checkout.getTotalPromo(), DELTA);
 		assertEquals(898, checkout.getTotalPayable(), DELTA);
 	}
+	
+	@Test
+	void testProductWithoutDiscount() {
+		BasketProduct boringFriesX5 = new BasketProduct(boringFries, basket);
+		boringFriesX5.setQty(5);
+
+		basket.addProduct(boringFriesX5);
+
+		CheckoutDto checkout = new CheckoutDto(basket);
+		checkout.doCheckout();
+
+		assertEquals(995, checkout.getRawTotal());
+		assertEquals(0, checkout.getTotalPromo(), DELTA);
+		assertEquals(995, checkout.getTotalPayable(), DELTA);
+	}
 }
