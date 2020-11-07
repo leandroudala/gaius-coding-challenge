@@ -10,9 +10,9 @@ public class CheckoutDto {
 	private Long id;
 	private User client;
 	private List<ProductDto> products;
-	private double rawTotal;
-	private double totalPromo;
-	private double totalPayable;
+	private int rawTotal;
+	private int totalPromo;
+	private int totalPayable;
 
 	public CheckoutDto(Basket basket) {
 		this.id = basket.getId();
@@ -32,15 +32,15 @@ public class CheckoutDto {
 		return products;
 	}
 
-	public double getRawTotal() {
+	public int getRawTotal() {
 		return rawTotal;
 	}
 
-	public double getTotalPromo() {
+	public int getTotalPromo() {
 		return totalPromo;
 	}
 
-	public double getTotalPayable() {
+	public int getTotalPayable() {
 		return totalPayable;
 	}
 
