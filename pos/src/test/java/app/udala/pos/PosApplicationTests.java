@@ -21,6 +21,9 @@ class PosApplicationTests {
 	private Product amazingPizza, amazingBurger, boringFries, amazingSalad;
 
 	private Basket basket;
+	
+	// DELTA is an acceptable variation of result
+	private Integer DELTA = 1;
 
 	@BeforeEach
 	void setup() {
@@ -213,8 +216,8 @@ class PosApplicationTests {
 		checkout.doCheckout();
 
 		assertEquals(499, checkout.getRawTotal());
-		assertEquals(49, checkout.getTotalPromo(), 1);
-		assertEquals(449, checkout.getTotalPayable(), 1);
+		assertEquals(49, checkout.getTotalPromo(), DELTA);
+		assertEquals(449, checkout.getTotalPayable(), DELTA);
 	}
 	
 	@Test
@@ -228,7 +231,7 @@ class PosApplicationTests {
 		checkout.doCheckout();
 
 		assertEquals(998, checkout.getRawTotal());
-		assertEquals(99, checkout.getTotalPromo(), 1);
-		assertEquals(898, checkout.getTotalPayable(), 1);
+		assertEquals(99, checkout.getTotalPromo(), DELTA);
+		assertEquals(898, checkout.getTotalPayable(), DELTA);
 	}
 }
