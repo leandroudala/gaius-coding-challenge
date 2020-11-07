@@ -1,6 +1,8 @@
 package app.udala.pos.controller;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import app.udala.pos.config.ResourceNotFoundException;
+import app.udala.pos.controller.dto.ProductListDto;
 import app.udala.pos.model.Product;
 import app.udala.pos.repository.ProductRepository;
 import app.udala.pos.repository.PromotionRepository;
@@ -37,21 +40,20 @@ public class ProductController {
 	private static final String PRODUCT_NOT_FOUND = "Product not found";
 	
 	@GetMapping
-	public ResponseEntity<Product[]> getItems() {
-		Product[] items = service.listProducts();
-
-		return ResponseEntity.ok(items);
+	public ResponseEntity<List<ProductListDto>> getItems() {
+		List<ProductListDto> products = repository.findAll().stream().map(ProductListDto::new).collect(Collectors.toList());
+		return ResponseEntity.ok(products);
 	}
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<Product> getItem(@PathVariable String id) throws ResourceNotFoundException {
-		Product item = service.getProduct(id);
-		if (item == null) {
+		Optional<Product> item = repository.findById(id);
+		if (!item.isPresent()) {
 			log.error("Item not found: '{}'", id);
 			throw new ResourceNotFoundException(PRODUCT_NOT_FOUND);
 		}
 		
-		return ResponseEntity.ok(item);
+		return ResponseEntity.ok(item.get());
 	}
 	
 	// load products from API
