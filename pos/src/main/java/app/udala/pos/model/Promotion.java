@@ -93,28 +93,65 @@ public class Promotion {
 				this.id, this.type, this.requiredQty, this.freeQty, this.amount, this.price);
 	}
 
-	public int calculatePromo(ProductDto product, int qty) {
+	public int calculateValueWithPromo(ProductDto product, int qty) {
 		int total = 0;
 
 		switch (type) {
 		case QTY_BASED_PRICE_OVERRIDE:
-			if (qty >= 2)
-				total = this.price * qty;
-			else
-				total = product.getPrice() * qty;
+			total = qtyBasedPriceOverride(product, qty);
 			break;
 
 		case BUY_X_GET_Y_FREE:
-			int totalItemsDiscount = this.requiredQty + this.freeQty;
-			total = product.getPrice() * (qty - totalItemsDiscount);
+			total = buyXGetYFree(product, qty);
 			break;
 
 		case FLAT_PERCENT:
-			total = (product.getPrice() * qty) / this.amount;
+			total = flatPercent(product, qty);
 			break;
 		}
 
 		return total;
 	}
+
+	private int flatPercent(ProductDto product, int qty) {
+		int totalPrice = product.getPrice() * qty;
+		return totalPrice - totalPrice / this.amount;
+	}
+
+	private int buyXGetYFree(ProductDto product, int qty) {
+		if (qty >= this.requiredQty + this.freeQty) {
+			int groups = qty / (this.requiredQty + this.freeQty);
+			int needPay = groups * requiredQty;
+			return needPay * product.getPrice();
+		}
+		
+		return 0;
+	}
+
+	private int qtyBasedPriceOverride(ProductDto product, int qty) {
+		if (requiredQty <= qty) {
+			int outOfDiscount = qty % this.requiredQty;
+			int qtyOverride = (qty - outOfDiscount) / this.requiredQty;
+			return (product.getPrice() * outOfDiscount) + (this.price * qtyOverride);
+		}
+
+		return 0;
+	}
+	
+	public Promotion() {
+		
+	}
+	public Promotion(@Length(min = 1, max = 10) String id, PromotionType type, int requiredQty, int freeQty, int amount,
+			int price) {
+		super();
+		this.id = id;
+		this.type = type;
+		this.requiredQty = requiredQty;
+		this.freeQty = freeQty;
+		this.amount = amount;
+		this.price = price;
+	}
+	
+	
 
 }

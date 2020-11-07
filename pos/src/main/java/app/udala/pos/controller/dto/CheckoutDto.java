@@ -13,13 +13,13 @@ public class CheckoutDto {
 	private int rawTotal;
 	private int totalPromo;
 	private int totalPayable;
-	
+
 	public CheckoutDto(Basket basket) {
 		this.id = basket.getId();
 		this.client = basket.getUser();
 		this.products = basket.getProducts().stream().map(ProductDto::new).collect(Collectors.toList());
 	}
-	
+
 	public Long getId() {
 		return id;
 	}
@@ -47,12 +47,21 @@ public class CheckoutDto {
 	public void doCheckout() {
 		products.stream().forEach(product -> {
 			int qty = product.getQtd();
-			this.rawTotal += product.getPrice() * qty;
+			int gross = product.getPrice() * qty;
 
-			// calculating promotion
+			this.rawTotal += product.getPrice() * qty;
+			this.totalPayable += gross;
+			
 			product.getPromotions().stream().forEach(promo -> {
-				this.totalPromo = promo.calculatePromo(product, qty);
-				this.totalPayable = this.rawTotal - this.totalPromo;
+				// get total value with discount
+				int net = promo.calculateValueWithPromo(product, qty);
+				int discount = 0;
+				
+				if (net > 0)
+					discount = gross - net;
+
+				this.totalPromo += discount;
+				this.totalPayable -= discount;
 			});
 		});
 	}

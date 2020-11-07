@@ -8,7 +8,6 @@ import javax.persistence.MapsId;
 import javax.validation.constraints.Min;
 
 @Entity
-//@IdClass(BasketProductId.class)
 public class BasketProduct {
 
 	@EmbeddedId

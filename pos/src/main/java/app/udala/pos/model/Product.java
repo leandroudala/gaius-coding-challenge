@@ -31,6 +31,16 @@ public class Product {
 	@OneToMany
 	@JsonProperty("promotions")
 	private List<Promotion> promotions;
+	public Product() {
+		
+	}
+	public Product(@Length(max = 10, min = 1) String id, String name, @Min(1) int price, List<Promotion> promotions) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.price = price;
+		this.promotions = promotions;
+	}
 
 	public String toString() {
 		return String.format("Item{id: %s, name: %s, price: %d, promotions: [%s]}", id, name, price, promotions);
