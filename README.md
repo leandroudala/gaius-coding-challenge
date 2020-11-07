@@ -6,7 +6,7 @@
 # How to run
 ## 1) Execute mock-api
 [Download the mock-api](https://cdn-dev.preoday.com/test/mock-api.zip) and extract its content.
-After extraction, execute the file 'start.sh', inside the folder 'wiremock'.
+After extraction, execute the file 'start.sh'
 
 *Make sure that port 8081 is available.
 
