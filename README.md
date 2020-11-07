@@ -24,7 +24,29 @@ java -jar .\target\supermarket-pos.jar
 
 *Make sure that port 8080 is available.
 
-# How to test
+## Endpoints
+### Basket
+To create a new Basket:
+- POST http://localhost:8080/basket
+
+To add a new Item to a Basket
+- POST http://localhost:8080/basket/{basketId}/{productId}
+
+To retrieve informations about a Basket
+- GET http://localhost:8080/basket/{basketId}
+
+To checkout a Basket
+- POST http://localhost:8080/basket/{basketId}/checkout
+
+### Products
+To list all products
+- GET http://localhost:8080/products
+
+To get details about a specific product
+- GET http://localhost:8080/product/{productId}
+
+
+# How to run automated test
 Inside the folder "pos", run this script:
 ```
 mvn test
