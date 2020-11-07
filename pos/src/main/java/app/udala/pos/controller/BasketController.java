@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import app.udala.pos.config.ResourceNotFoundException;
 import app.udala.pos.controller.dto.BasketDto;
 import app.udala.pos.controller.dto.CheckoutDto;
 import app.udala.pos.model.Basket;
@@ -31,7 +32,8 @@ import app.udala.pos.repository.UserRepository;
 @RequestMapping("/basket")
 public class BasketController {
 	Logger log = LoggerFactory.getLogger(BasketController.class);
-
+	
+	private static final String BASKET_NOT_FOUND = "Basket not found";
 	@Autowired
 	private BasketRepository repository;
 
@@ -63,12 +65,12 @@ public class BasketController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<BasketDto> getBasket(@PathVariable Long id) {
+	public ResponseEntity<BasketDto> getBasket(@PathVariable Long id) throws ResourceNotFoundException {
 		Optional<Basket> optionalBasket = repository.findById(id);
 
 		if (optionalBasket.isEmpty()) {
 			log.error("Basket not found! Basket id: {}", id);
-			return ResponseEntity.notFound().build();
+			throw new ResourceNotFoundException(BASKET_NOT_FOUND);
 		}
 		BasketDto basketDto = new BasketDto(optionalBasket.get());
 
@@ -77,19 +79,19 @@ public class BasketController {
 
 	@Transactional
 	@PostMapping("/{basketId}/{productId}")
-	public ResponseEntity<BasketDto> addItems(@PathVariable Long basketId, @PathVariable String productId) {
+	public ResponseEntity<BasketDto> addItems(@PathVariable Long basketId, @PathVariable String productId) throws ResourceNotFoundException {
 		log.info("Checking if basket exists");
 		Optional<Basket> optBasket = repository.findById(basketId);
 		if (!optBasket.isPresent()) {
 			log.error("Basket '{}' not found!", basketId);
-			return ResponseEntity.notFound().build();
+			throw new ResourceNotFoundException(BASKET_NOT_FOUND);
 		}
 
 		log.info("Check if product id exists");
 		Optional<Product> optProduct = productRepository.findById(productId);
 		if (optProduct.isEmpty()) {
 			log.error("Product not registered! Id: '{}'", productId);
-			return ResponseEntity.notFound().build();
+			throw new ResourceNotFoundException("Product not registered");
 		}
 
 		Product product = optProduct.get();
@@ -111,12 +113,12 @@ public class BasketController {
 	}
 
 	@PostMapping("/{basketId}/checkout")
-	public ResponseEntity<CheckoutDto> checkout(@PathVariable Long basketId) {
+	public ResponseEntity<CheckoutDto> checkout(@PathVariable Long basketId) throws ResourceNotFoundException {
 		log.info("Checking if basket exists");
 		Optional<Basket> optBasket = repository.findById(basketId);
 		if (!optBasket.isPresent()) {
 			log.error("Basket '{}' not found", basketId);
-			return ResponseEntity.notFound().build();
+			throw new ResourceNotFoundException(BASKET_NOT_FOUND);
 		}
 		Basket basket = optBasket.get();
 		CheckoutDto checkout = new CheckoutDto(basket);

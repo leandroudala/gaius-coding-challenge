@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import app.udala.pos.config.ResourceNotFoundException;
 import app.udala.pos.model.Product;
 import app.udala.pos.repository.ProductRepository;
 import app.udala.pos.repository.PromotionRepository;
@@ -33,6 +34,8 @@ public class ProductController {
 	@Autowired
 	private PromotionRepository promotionRepository;
 	
+	private static final String PRODUCT_NOT_FOUND = "Product not found";
+	
 	@GetMapping
 	public ResponseEntity<Product[]> getItems() {
 		Product[] items = service.listProducts();
@@ -41,11 +44,11 @@ public class ProductController {
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<Product> getItem(@PathVariable String id) {
+	public ResponseEntity<Product> getItem(@PathVariable String id) throws ResourceNotFoundException {
 		Product item = service.getProduct(id);
 		if (item == null) {
 			log.error("Item not found: '{}'", id);
-			return ResponseEntity.notFound().build();
+			throw new ResourceNotFoundException(PRODUCT_NOT_FOUND);
 		}
 		
 		return ResponseEntity.ok(item);
